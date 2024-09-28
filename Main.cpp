@@ -21,6 +21,7 @@ struct Ball
     float inverse_mass; // A variable for 1 / mass. Used in the calculation for acceleration = sum of forces / mass
     Vector2 acceleration;
     Vector2 velocity;
+    bool isVisible;
 };
 
 struct Border{
@@ -92,6 +93,7 @@ bool isCircleCollidingWithBorder(Ball b1, Border br1){
 }
 
 
+
 int main()
 {
     Ball ball;
@@ -102,6 +104,7 @@ int main()
     ball.inverse_mass = 1 / ball.mass;
     ball.acceleration = Vector2Zero();
     ball.velocity = Vector2Zero();
+    ball.isVisible = true;
 
     Ball ball2;
     ball2.position = {WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4};
@@ -111,6 +114,7 @@ int main()
     ball2.inverse_mass = 1 / ball.mass;
     ball2.acceleration = Vector2Zero();
     ball2.velocity = Vector2Zero();
+    ball2.isVisible = true;
 
     Ball ball3;
     ball3.position = {WINDOW_WIDTH - 200, WINDOW_HEIGHT - 200};
@@ -120,6 +124,7 @@ int main()
     ball3.inverse_mass = 1 / ball.mass;
     ball3.acceleration = Vector2Zero();
     ball3.velocity = Vector2Zero();
+    ball3.isVisible = true;
 
     Ball ballArray[numberOfCircles] = {ball, ball2, ball3};
 
@@ -138,6 +143,7 @@ int main()
     upperLeft.inverse_mass = 1 / ball.mass;
     upperLeft.acceleration = Vector2Zero();
     upperLeft.velocity = Vector2Zero();
+    upperLeft.isVisible = true;
 
     Ball upperRight;
     upperRight.position = {800-37.5,37.5};
@@ -147,6 +153,7 @@ int main()
     upperRight.inverse_mass = 1 / ball.mass;
     upperRight.acceleration = Vector2Zero();
     upperRight.velocity = Vector2Zero();
+    upperRight.isVisible = true;
 
     Ball lowerLeft;
     lowerLeft.position = {37.5,600-37.5};
@@ -156,6 +163,7 @@ int main()
     lowerLeft.inverse_mass = 1 / ball.mass;
     lowerLeft.acceleration = Vector2Zero();
     lowerLeft.velocity = Vector2Zero();
+    lowerLeft.isVisible = true;
 
     Ball lowerRight;
     lowerRight.position = {800-37.5,600-37.5};
@@ -165,6 +173,7 @@ int main()
     lowerRight.inverse_mass = 1 / ball.mass;
     lowerRight.acceleration = Vector2Zero();
     lowerRight.velocity = Vector2Zero();
+    lowerRight.isVisible = true;
 
     /*
     DrawRectangle(75,0,650,40,RED); // Top Bar
@@ -196,7 +205,7 @@ int main()
     bottom.height = 40;
     bottom.color = RED;
 
-    int elasticityCoefficient = 0;
+    int elasticityCoefficient = 1;
 
     // Vector2 *dragLine0 = new Vector2;
     // Vector2 *dragLine1 = new Vector2;
@@ -216,8 +225,21 @@ int main()
         Vector2 *dragLine1 = new Vector2;
         if (IsKeyPressed(KEY_SPACE))
         {
-            elasticityCoefficient = toggleElasticity(elasticityCoefficient);
-            std::cout << "elasticity: " << elasticityCoefficient << std::endl;
+            std::cout << "key pressed space" << std::endl;
+            ball.position = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
+            ball.acceleration = Vector2Zero();
+            ball.velocity = Vector2Zero();
+            ball.isVisible = true;
+
+            ball2.position = {WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4};
+            ball2.acceleration = Vector2Zero();
+            ball2.velocity = Vector2Zero();
+            ball2.isVisible = true;
+
+            ball3.position = {WINDOW_WIDTH - 200, WINDOW_HEIGHT - 200};
+            ball3.acceleration = Vector2Zero();
+            ball3.velocity = Vector2Zero();
+            ball3.isVisible = true;
         }
 
         if (IsKeyDown(KEY_W))
@@ -279,16 +301,16 @@ int main()
                 if(ballArray[i].position.y + ballArray[i].radius >= WINDOW_HEIGHT || ballArray[i].position.y - ballArray[i].radius <= 0) {   
                     ballArray[i].velocity.y *= -1;
                 }
-                if(isCircleCollidingWithBorder(ballArray[i], top)){
+                if(isCircleCollidingWithBorder(ballArray[i], top) && ballArray[i].isVisible){
                     ballArray[i].velocity.y *= -1;
                 }
-                if(isCircleCollidingWithBorder(ballArray[i], bottom)){
+                if(isCircleCollidingWithBorder(ballArray[i], bottom) && ballArray[i].isVisible){
                     ballArray[i].velocity.y *= -1;
                 }
-                if(isCircleCollidingWithBorder(ballArray[i], left)){
+                if(isCircleCollidingWithBorder(ballArray[i], left) && ballArray[i].isVisible){
                     ballArray[i].velocity.x *= -1;
                 }
-                if(isCircleCollidingWithBorder(ballArray[i], right)){
+                if(isCircleCollidingWithBorder(ballArray[i], right) && ballArray[i].isVisible){
                     ballArray[i].velocity.x *= -1;
                 }
                 for (int k = 0; k < numberOfCircles; k++)
@@ -302,7 +324,7 @@ int main()
                         break;
                     }
                     
-                    if(isCirclesColliding(ballArray[i], ballArray[k])){
+                    if(isCirclesColliding(ballArray[i], ballArray[k]) && ballArray[i].isVisible && ballArray[k].isVisible){
                         Vector2 n = Vector2Subtract(ballArray[i].position, ballArray[k].position); // currently swapped (as per sir's comment)
                         float j = -(((1 + elasticityCoefficient) * Vector2DotProduct(Vector2Subtract(ballArray[i].velocity, ballArray[k].velocity /**/), n)) / (Vector2DotProduct(n, n) * (1 / ballArray[i].mass) + (1 / ballArray[k].mass)));
                         Vector2 newVelocity = Vector2Add(ballArray[i].velocity, Vector2Scale(n, (j / ballArray[i].mass)));
@@ -311,7 +333,7 @@ int main()
                         ballArray[k].velocity = newVelocity2;
                     }
                     if(isCircleCollidingWithCorner(ballArray[i], upperLeft, upperRight, lowerLeft, lowerRight)){
-
+                        ballArray[i].isVisible = false;
                     }
                 }
             }
@@ -320,9 +342,13 @@ int main()
 
         BeginDrawing();
         ClearBackground(WHITE);
-        DrawCircleV(ballArray[0].position, ballArray[0].radius, ballArray[0].color);
-        DrawCircleV(ballArray[1].position, ballArray[1].radius, ballArray[1].color);
-        DrawCircleV(ballArray[2].position, ballArray[2].radius, ballArray[2].color);
+        
+        for (size_t i = 0; i < numberOfCircles; i++){
+            if(ballArray[i].isVisible){
+                DrawCircleV(ballArray[i].position, ballArray[i].radius, ballArray[i].color);
+            }
+        }
+        
 
         // pool table border
         ClearBackground(LIME);
