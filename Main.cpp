@@ -30,13 +30,6 @@ struct Border{
     Color color;
 };
 
-struct Border{
-    Vector2 position;
-    float width;
-    float height;
-    Color color;
-};
-
 int toggleElasticity(int e)
 {
     if (e == 0){
@@ -56,11 +49,6 @@ float getDistanceToPoint(Ball b1, Vector2 pos){
     return std::abs(Vector2Length(dist));
 }
 
-float getDistanceToPoint(Ball b1, Vector2 pos){
-    Vector2 dist = Vector2Subtract(b1.position, pos);
-    return std::abs(Vector2Length(dist));
-}
-
 bool isCirclesColliding(Ball b1, Ball b2){
     float sumOfRadii = b1.radius + b2.radius;
     float distance = getDistance(b1, b2);
@@ -71,39 +59,6 @@ bool isCirclesColliding(Ball b1, Ball b2){
     }
     return false;
 }
-
-bool isCircleCollidingWithCorner(Ball b1, Ball upperLeft, Ball upperRight, Ball lowerLeft, Ball lowerRight){
-    if(isCirclesColliding(b1,upperLeft)){
-        std::cout << "colliding with upper left" << std::endl;
-        return true;
-    }
-    if(isCirclesColliding(b1,upperRight)){
-        std::cout << "colliding with upper right" << std::endl;
-        return true;
-    }
-    if(isCirclesColliding(b1,lowerLeft)){
-        std::cout << "colliding with lower left" << std::endl;
-        return true;
-    }
-    if(isCirclesColliding(b1,lowerRight)){
-        std::cout << "colliding with lower right" << std::endl;
-        return true;
-    }
-    return false;
-}
-
-bool isCircleCollidingWithBorder(Ball b1, Border br1){
-    float nearestX = fmaxf(br1.position.x, fminf(b1.position.x, br1.position.x + br1.width));
-    float nearestY = fmaxf(br1.position.y, fminf(b1.position.y, br1.position.y + br1.height));
-
-    float distance = getDistanceToPoint(b1, {nearestX, nearestY});
-    if (distance <= b1.radius){
-        return true;
-    }
-    return false;
-}
-
-
 
 bool isCircleCollidingWithCorner(Ball b1, Ball upperLeft, Ball upperRight, Ball lowerLeft, Ball lowerRight){
     if(isCirclesColliding(b1,upperLeft)){
