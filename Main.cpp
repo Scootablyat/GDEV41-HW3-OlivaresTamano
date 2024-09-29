@@ -244,10 +244,6 @@ int main()
 
     int elasticityCoefficient = 1;
 
-    // Vector2 *dragLine0 = new Vector2;
-    // Vector2 *dragLine1 = new Vector2;
-    // Vector2 *dragLine1 = new Vector2{0.0f, 0.0f};
-
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Tamano - Exercise 4");
 
     SetTargetFPS(FPS);
@@ -261,12 +257,6 @@ int main()
         Vector2 *dragLine0 = new Vector2{Vector2Zero()};
         Vector2 *dragLine1 = new Vector2{Vector2Zero()};
         bool ballsAreStill = true;
-
-        if (IsKeyPressed(KEY_SPACE))
-        {
-            elasticityCoefficient = toggleElasticity(elasticityCoefficient);
-            std::cout << "elasticity: " << elasticityCoefficient << std::endl;
-        }
 
         // Checking if all of the balls have stopped
         for (int i = 0; i < numberOfCircles; i++)
@@ -292,7 +282,7 @@ int main()
             *dragLine0 = ballArray[0].position;
             *dragLine1 = GetMousePosition();
             // Multiplying forces by 500
-            forces = Vector2Add(forces, Vector2Scale(Vector2Subtract(*dragLine0, *dragLine1), 150.0f));
+            forces = Vector2Add(forces, Vector2Scale(Vector2Subtract(*dragLine0, *dragLine1), 500.0f));
             std::cout << "Force Vector : " << forces.x << " " << forces.y << std::endl;
             delete[] dragLine0, dragLine1;
         }
@@ -368,7 +358,16 @@ int main()
                     }
                     if (isCircleCollidingWithCorner(ballArray[i], upperLeft, upperRight, lowerLeft, lowerRight))
                     {
-                        ballArray[i].isVisible = false;
+                        if (i == 0)
+                        {
+                            ballArray[i].position = ballArray[i].defaultPosition;
+                            ballArray[i].acceleration = Vector2Zero();
+                            ballArray[i].velocity = Vector2Zero();
+                        }
+                        else
+                        {
+                            ballArray[i].isVisible = false;
+                        }
                     }
                 }
             }
