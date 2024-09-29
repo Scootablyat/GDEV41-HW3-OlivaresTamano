@@ -242,7 +242,7 @@ int main()
     bottom.height = 40;
     bottom.color = RED;
 
-    int elasticityCoefficient = 1;
+    int elasticityCoefficient = 0.5;
 
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Tamano - Exercise 4");
 
