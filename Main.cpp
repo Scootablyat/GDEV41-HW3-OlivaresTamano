@@ -6,7 +6,7 @@
 
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
-const int numberOfCircles = 3;
+const int numberOfCircles = 5;
 const float FPS = 60;
 const float TIMESTEP = 1 / FPS; // Sets the timestep to 1 / FPS. But timestep can be any very small value.
 const float FRICTION = 2.5;
@@ -21,6 +21,8 @@ struct Ball
     float inverse_mass; // A variable for 1 / mass. Used in the calculation for acceleration = sum of forces / mass
     Vector2 acceleration;
     Vector2 velocity;
+
+    Vector2 defaultPosition;
     bool isVisible;
 };
 
@@ -97,7 +99,7 @@ bool isCircleCollidingWithBorder(Ball b1, Border br1){
 int main()
 {
     Ball ball;
-    ball.position = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
+    ball.position = {200, WINDOW_HEIGHT / 2};
     ball.radius = 30.0f;
     ball.color = WHITE;
     ball.mass = 1.0f;
@@ -105,19 +107,21 @@ int main()
     ball.acceleration = Vector2Zero();
     ball.velocity = Vector2Zero();
     ball.isVisible = true;
+    ball.defaultPosition = ball.position;
 
     Ball ball2;
-    ball2.position = {WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4};
+    ball2.position = {500,  WINDOW_HEIGHT / 2};
     ball2.radius = 30.0f;
-    ball2.color = BLACK;
+    ball2.color = PURPLE;
     ball2.mass = 1.0f;
     ball2.inverse_mass = 1 / ball.mass;
     ball2.acceleration = Vector2Zero();
     ball2.velocity = Vector2Zero();
     ball2.isVisible = true;
+    ball2.defaultPosition = ball2.position;
 
     Ball ball3;
-    ball3.position = {WINDOW_WIDTH - 200, WINDOW_HEIGHT - 200};
+    ball3.position = {600, WINDOW_HEIGHT / 2};
     ball3.radius = 30.0f;
     ball3.color = YELLOW;
     ball3.mass = 1.0f;
@@ -125,8 +129,31 @@ int main()
     ball3.acceleration = Vector2Zero();
     ball3.velocity = Vector2Zero();
     ball3.isVisible = true;
+    ball3.defaultPosition = ball3.position;
 
-    Ball ballArray[numberOfCircles] = {ball, ball2, ball3};
+    Ball ball4;
+    ball4.position = {550, (WINDOW_HEIGHT / 2) - 40};
+    ball4.radius = 30.0f;
+    ball4.color = BLACK;
+    ball4.mass = 1.0f;
+    ball4.inverse_mass = 1 / ball.mass;
+    ball4.acceleration = Vector2Zero();
+    ball4.velocity = Vector2Zero();
+    ball4.isVisible = true;
+    ball4.defaultPosition = ball4.position;
+
+    Ball ball5;
+    ball5.position = {550, (WINDOW_HEIGHT / 2) + 40};
+    ball5.radius = 30.0f;
+    ball5.color = BLUE;
+    ball5.mass = 1.0f;
+    ball5.inverse_mass = 1 / ball.mass;
+    ball5.acceleration = Vector2Zero();
+    ball5.velocity = Vector2Zero();
+    ball5.isVisible = true;
+    ball5.defaultPosition = ball5.position;
+
+    Ball ballArray[numberOfCircles] = {ball, ball2, ball3, ball4, ball5};
 
 
     /*
@@ -223,24 +250,7 @@ int main()
         Vector2 forces = Vector2Zero();
         Vector2 *dragLine0 = new Vector2;
         Vector2 *dragLine1 = new Vector2;
-        if (IsKeyPressed(KEY_SPACE))
-        {
-            std::cout << "key pressed space" << std::endl;
-            ball.position = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
-            ball.acceleration = Vector2Zero();
-            ball.velocity = Vector2Zero();
-            ball.isVisible = true;
-
-            ball2.position = {WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4};
-            ball2.acceleration = Vector2Zero();
-            ball2.velocity = Vector2Zero();
-            ball2.isVisible = true;
-
-            ball3.position = {WINDOW_WIDTH - 200, WINDOW_HEIGHT - 200};
-            ball3.acceleration = Vector2Zero();
-            ball3.velocity = Vector2Zero();
-            ball3.isVisible = true;
-        }
+        
 
         if (IsKeyDown(KEY_W))
         {
@@ -281,7 +291,17 @@ int main()
             forces = Vector2Add(forces, Vector2Scale(Vector2Subtract(*dragLine0, *dragLine1), 500.0f));
             // delete[] dragLine0, dragLine1;
         }
-
+        if (IsKeyPressed(KEY_SPACE))
+        {
+            std::cout << "key pressed space" << std::endl;
+            for(int i = 0; i < numberOfCircles; i++){
+                std::cout << "ball position "<< i << " : "  << ballArray[i].position.x << " " << ballArray[i].position.y << std::endl;
+                ballArray[i].position = ballArray[i].defaultPosition;
+                ballArray[i].acceleration = Vector2Zero();
+                ballArray[i].velocity = Vector2Zero();
+                ballArray[i].isVisible = true;
+            }
+        }
         ballArray[0].acceleration = Vector2Scale(forces, ball.inverse_mass);
 
         // Physics
