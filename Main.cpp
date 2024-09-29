@@ -21,6 +21,8 @@ struct Ball
     float inverse_mass; // A variable for 1 / mass. Used in the calculation for acceleration = sum of forces / mass
     Vector2 acceleration;
     Vector2 velocity;
+
+    bool isStill; // Determines if the ball is still or is moving
 };
 
 int toggleElasticity(int e)
@@ -114,52 +116,42 @@ int main()
     {
         float delta_time = GetFrameTime();
         Vector2 forces = Vector2Zero();
-        Vector2 *dragLine0 = new Vector2;
-        Vector2 *dragLine1 = new Vector2;
+        Vector2 *dragLine0 = new Vector2{Vector2Zero()};
+        Vector2 *dragLine1 = new Vector2{Vector2Zero()};
+        bool ballsAreStill = true;
+
         if (IsKeyPressed(KEY_SPACE))
         {
             elasticityCoefficient = toggleElasticity(elasticityCoefficient);
             std::cout << "elasticity: " << elasticityCoefficient << std::endl;
         }
 
-        if (IsKeyDown(KEY_W))
+        // Checking if all of the balls have stopped
+        for (int i = 0; i < numberOfCircles; i++)
         {
-            // std::cout << ball.acceleration.x << " " << ball.acceleration.y << std::endl;
-            forces = Vector2Add(forces, {0, -100});
+            ballArray[i].isStill = (abs(ballArray[i].velocity.x) < 0.1f && abs(ballArray[i].velocity.y) < 0.1f) ? true : false;
         }
-        if (IsKeyDown(KEY_A))
+        for (int i = 0; i < numberOfCircles; i++)
         {
-            // std::cout << ball.acceleration.x << " " << ball.acceleration.y << std::endl;
-            forces = Vector2Add(forces, {-100, 0});
+            if (ballArray[i].isStill == false)
+            {
+                ballsAreStill = false;
+            }
         }
-        if (IsKeyDown(KEY_S))
-        {
-            // std::cout << ball.acceleration.x << " " << ball.acceleration.y << std::endl;
-            forces = Vector2Add(forces, {0, 100});
-        }
-        if (IsKeyDown(KEY_D))
-        {
-            // std::cout << ball.acceleration.x << " " << ball.acceleration.y << std::endl;
-            forces = Vector2Add(forces, {100, 0});
-        }
-        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
-        {
 
+        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && ballsAreStill)
+        {
+            // std::cout << ballsAreStill << std::endl;
             *dragLine0 = ballArray[0].position;
             *dragLine1 = GetMousePosition();
-            // if (Vector2Distance(*dragLine0, *dragLine1) > 200)
-            // {
-            // }
         }
-        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
+        if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && ballsAreStill)
         {
             *dragLine0 = ballArray[0].position;
             *dragLine1 = GetMousePosition();
-            // Multiplying forces by 10
-
-            std::cout << Vector2Distance(*dragLine0, *dragLine1) << std::endl;
+            // Multiplying forces by 500
             forces = Vector2Add(forces, Vector2Scale(Vector2Subtract(*dragLine0, *dragLine1), 500.0f));
-            // delete[] dragLine0, dragLine1;
+            delete[] dragLine0, dragLine1;
         }
 
         ballArray[0].acceleration = Vector2Scale(forces, ball.inverse_mass);
@@ -173,6 +165,7 @@ int main()
                 // std::cout << "i, k: " << i << " " << k << std::endl;
                 ballArray[i].velocity = Vector2Add(ballArray[i].velocity, Vector2Scale(ballArray[i].acceleration, TIMESTEP));
                 ballArray[i].velocity = Vector2Subtract(ballArray[i].velocity, Vector2Scale(ballArray[i].velocity, FRICTION * ballArray[i].inverse_mass * TIMESTEP));
+                // std::cout << ballArray[0].velocity.x << " " << ballArray[0].velocity.y << std::endl;
                 ballArray[i].position = Vector2Add(ballArray[i].position, Vector2Scale(ballArray[i].velocity, TIMESTEP));
 
                 if (ballArray[i].position.x + ballArray[i].radius >= WINDOW_WIDTH || ballArray[i].position.x - ballArray[i].radius <= 0)
@@ -229,7 +222,7 @@ int main()
         DrawCircleV(Vector2{800 - 37.5, 600 - 37.5}, 37.5, BLACK); // Lower Right
 
         // cue ball dragging
-        DrawLineV(*dragLine0, *dragLine1, YELLOW);
+        DrawLineEx(*dragLine0, *dragLine1, 7.5f, YELLOW);
 
         EndDrawing();
     }
