@@ -251,7 +251,7 @@ int main()
         Vector2 *dragLine0 = new Vector2;
         Vector2 *dragLine1 = new Vector2;
         
-
+        /*
         if (IsKeyDown(KEY_W))
         {
             // std::cout << ball.acceleration.x << " " << ball.acceleration.y << std::endl;
@@ -272,6 +272,8 @@ int main()
             // std::cout << ball.acceleration.x << " " << ball.acceleration.y << std::endl;
             forces = Vector2Add(forces, {100, 0});
         }
+         */
+        
         if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
         {
 
@@ -288,7 +290,8 @@ int main()
             // Multiplying forces by 10
 
             std::cout << Vector2Distance(*dragLine0, *dragLine1) << std::endl;
-            forces = Vector2Add(forces, Vector2Scale(Vector2Subtract(*dragLine0, *dragLine1), 500.0f));
+            forces = Vector2Add(forces, Vector2Scale(Vector2Subtract(*dragLine0, *dragLine1), 150.0f));
+            std::cout << "Force Vector : " << forces.x <<" " << forces.y << std::endl;
             // delete[] dragLine0, dragLine1;
         }
         if (IsKeyPressed(KEY_SPACE))
