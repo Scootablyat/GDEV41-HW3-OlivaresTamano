@@ -166,12 +166,6 @@ int main()
 
     Ball ballArray[numberOfCircles] = {ball, ball2, ball3, ball4, ball5};
 
-    /*
-    DrawCircleV(Vector2{37.5,37.5},37.5,BLACK); // Upper Left
-    DrawCircleV(Vector2{800-37.5,37.5},37.5,BLACK); // Upper Right
-    DrawCircleV(Vector2{37.5,600-37.5},37.5,BLACK); // Lower Left
-    DrawCircleV(Vector2{800-37.5,600-37.5},37.5,BLACK); //Lower Right
-    */
     Ball upperLeft;
     upperLeft.position = {37.5, 37.5};
     upperLeft.radius = 37.5;
@@ -212,12 +206,6 @@ int main()
     lowerRight.velocity = Vector2Zero();
     lowerRight.isVisible = true;
 
-    /*
-    DrawRectangle(75,0,650,40,RED); // Top Bar
-    DrawRectangle(0,75,40,450,RED); // Left Bar
-    DrawRectangle(760,75,40,450,RED); // Right Bar
-    DrawRectangle(75,560,650,40,RED); // Bottom Bar
-    */
     Border top;
     top.position = {75, 0};
     top.width = 650;
@@ -242,7 +230,7 @@ int main()
     bottom.height = 40;
     bottom.color = RED;
 
-    int elasticityCoefficient = 0.5;
+    int elasticityCoefficient = 0.5f;
 
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Tamano - Exercise 4");
 
@@ -254,8 +242,9 @@ int main()
     {
         float delta_time = GetFrameTime();
         Vector2 forces = Vector2Zero();
-        Vector2 *dragLine0 = new Vector2{Vector2Zero()};
-        Vector2 *dragLine1 = new Vector2{Vector2Zero()};
+        Vector2 *dragLine0 = new Vector2{Vector2Zero()}; // Cueball Position
+        Vector2 *dragLine1 = new Vector2{Vector2Zero()}; // Mouse Position
+        Vector2 *dragLine2 = new Vector2{Vector2Zero()}; // Vector Between Cueball and Mouse
         bool ballsAreStill = true;
 
         // Checking if all of the balls have stopped
@@ -273,18 +262,37 @@ int main()
 
         if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && ballsAreStill)
         {
-            // std::cout << ballsAreStill << std::endl;
             *dragLine0 = ballArray[0].position;
             *dragLine1 = GetMousePosition();
+
+            if (Vector2Distance(*dragLine0, *dragLine1) > 150.0f)
+            {
+                *dragLine2 = Vector2Scale(Vector2Normalize(Vector2Subtract(*dragLine1, *dragLine0)), 150.0f);
+            }
+            else
+            {
+                *dragLine2 = Vector2Scale(Vector2Normalize(Vector2Subtract(*dragLine1, *dragLine0)), Vector2Distance(*dragLine0, *dragLine1));
+            }
+
+            std::cout << dragLine1->x << " " << dragLine1->y << "   " << GetMousePosition().x << " " << GetMousePosition().y << std::endl;
         }
         if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT) && ballsAreStill)
         {
             *dragLine0 = ballArray[0].position;
             *dragLine1 = GetMousePosition();
+            if (Vector2Distance(*dragLine0, *dragLine1) > 150.0f)
+            {
+                *dragLine2 = Vector2Scale(Vector2Normalize(Vector2Subtract(*dragLine1, *dragLine0)), 150.0f);
+            }
+            else
+            {
+                *dragLine2 = Vector2Scale(Vector2Normalize(Vector2Subtract(*dragLine1, *dragLine0)), Vector2Distance(*dragLine0, *dragLine1));
+            }
             // Multiplying forces by 500
-            forces = Vector2Add(forces, Vector2Scale(Vector2Subtract(*dragLine0, *dragLine1), 500.0f));
+            forces = Vector2Add(forces, Vector2Scale(*dragLine2, -500.0f));
+
             std::cout << "Force Vector : " << forces.x << " " << forces.y << std::endl;
-            delete[] dragLine0, dragLine1;
+            delete[] dragLine0, dragLine1, dragLine2;
         }
         if (IsKeyPressed(KEY_SPACE))
         {
@@ -399,7 +407,7 @@ int main()
         DrawCircleV(lowerRight.position, lowerRight.radius, lowerRight.color); // Lower Right
 
         // cue ball dragging
-        DrawLineEx(*dragLine0, *dragLine1, 7.5f, YELLOW);
+        DrawLineEx(*dragLine0, Vector2Add(*dragLine0, *dragLine2), 7.5f, YELLOW);
 
         EndDrawing();
     }
